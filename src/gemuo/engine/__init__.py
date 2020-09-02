@@ -13,7 +13,7 @@
 #   GNU General Public License for more details.
 #
 
-from twisted.internet.defer import Deferred
+from twisted.internet.defer import Deferred,AlreadyCalledError
 
 class Engine:
     def __init__(self, client):
@@ -32,8 +32,12 @@ class Engine:
         self.deferred.callback(result)
 
     def _failure(self, fail='Engine failed'):
-        self.__stop()
-        self.deferred.errback(fail)
+        try:
+            self.__stop()
+            self.deferred.errback(fail)
+        except AlreadyCalledError:
+            # Ignore if is called twice.
+            pass
 
     def abort(self):
         """Aborts this engine, does not emit a signal."""

@@ -35,7 +35,8 @@ class Client:
         self._engines.append(engine)
 
     def remove_engine(self, engine):
-        self._engines.remove(engine)
+        if engine in self._engines:
+            self._engines.remove(engine)
 
     def signal(self, name, *args, **keywords):
         for engine in self._engines:
