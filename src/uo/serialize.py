@@ -60,7 +60,7 @@ class PacketReader:
 
     def data(self, length):
         if len(self._data) < length:
-            raise "Packet is too short"
+            raise Exception("Packet is too short")
         x, self._data = self._data[:length], self._data[length:]
         return x
 
@@ -96,7 +96,7 @@ class PacketWriter:
         self.byte(cmd)
         self._length = packet_lengths[cmd]
         if self._length == 0xffff:
-            raise "Unsupported packet"
+            raise Exception("Unsupported packet")
 
     def data(self, x):
         self._data += x
@@ -128,7 +128,7 @@ class PacketWriter:
 
     def fixstring(self, x, length):
         if len(x) > length:
-            raise "String is too long"
+            raise Exception("String is too long")
         self.data(x)
         self.data('\0' * (length - len(x)))
 
@@ -145,10 +145,10 @@ class PacketWriter:
         data = self._data
         if self._length == 0:
             if len(data) > 0xf000:
-                raise "Packet too large"
+                raise Exception("Packet too large")
             data = data[0] + struct.pack('>H', len(data) + 2) + data[1:]
         else:
             if len(data) != self._length:
-                print self._length, repr(data)
-                raise "Invalid packet length"
+                print(self._length, repr(data))
+                raise Exception("Invalid packet length")
         return data

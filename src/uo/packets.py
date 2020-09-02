@@ -243,10 +243,10 @@ class MobileItem:
         self.item_id = packet.ushort()
         self.layer = packet.byte()
         if (self.item_id & 0x8000) != 0:
-            self.item_id &= ~0x8000
+            self.item_id &= 0x7FFF
             self.hue = packet.ushort()
         else:
-            self.hue = 0
+            self.hue = packet.ushort()
 
 class MobileIncoming(MobileMoving):
     def __init__(self, packet):
@@ -331,6 +331,32 @@ class ChangeCombatant:
     def __init__(self, packet):
         self.serial = packet.uint()
 
+
+class UnicodeTalk:
+    def __init__(self, packet):
+        self.serial = packet.uint()
+        self.graphic = packet.ushort()
+        self.type = packet.byte()
+        self.hue = packet.ushort()
+        self.font = packet.ushort()
+        self.lang = packet.fixstring(4)
+        self.name = packet.cstring()
+
+class NewHealthbarUpdate:
+    def __init__(self, packet):
+        self.serial = packet.uint()
+        self.count = packet.ushort()
+
+        self.status = []
+        for i in range(self.count):
+            # todo: calculate flag value.
+            feature = {
+                'type': packet.ushort(),
+                'enabled': packet.boolean(),
+            }
+
+            self.status.append(feature)
+
 class Extended:
     def __init__(self, packet):
         self.extended = packet.ushort()
@@ -352,6 +378,7 @@ class Ignore:
 parsers = {
     0x0b: Damage,
     0x11: MobileStatus,
+    0x17: NewHealthbarUpdate,
     0x1a: WorldItem,
     0x1b: LoginConfirm,
     0x1c: AsciiMessage,
@@ -395,6 +422,7 @@ parsers = {
     0xa8: ServerList,
     0xa9: CharacterList,
     0xaa: ChangeCombatant,
+    0xae: UnicodeTalk,
     0xb0: Ignore, # DisplayGump
     0xb9: Ignore, # Features
     0xbc: Ignore, # Season
